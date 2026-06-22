@@ -73,7 +73,7 @@ export function SessionArc({
           : "Keep going";
   const sub =
     total === 0
-      ? "Add daily rehab in Plan"
+      ? "Add your first rehab movement below"
       : `${done} of ${total} ${noun}${total === 1 ? "" : "s"} done`;
 
   return (
