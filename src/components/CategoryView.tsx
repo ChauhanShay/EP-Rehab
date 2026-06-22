@@ -73,7 +73,7 @@ export function CategoryView({
   showArc?: boolean;
   showCheckin?: boolean;
 }) {
-  const { data, toggleExercise, setExerciseFeel, setDayField, addExercise, updateExercise, removeExercise } = store;
+  const { data, toggleExercise, clearDayExercise, setExerciseFeel, setDayField, addExercise, updateExercise, removeExercise } = store;
   const meta = CATEGORIES.find((c) => c.key === category)!;
 
   const [editing, setEditing] = useState(false);
@@ -88,8 +88,17 @@ export function CategoryView({
   const archived = all.filter((e) => e.archived);
 
   const day = data.days[date];
-  const doneCount = live.filter((e) => day?.exercises[e.id]?.done).length;
-  const frac = live.length ? doneCount / live.length : 0;
+  const isPicked = (e: { id: string; daily: boolean }) =>
+    !e.daily && day?.exercises[e.id] !== undefined;
+
+  const scheduled = live.filter((e) => e.daily); // repeats every day
+  const picked = live.filter(isPicked); // chosen for this day from the library
+  const todayList = [...scheduled, ...picked];
+  const libraryAvail = live.filter((e) => !e.daily && !isPicked(e));
+
+  const arcDone = scheduled.filter((e) => day?.exercises[e.id]?.done).length;
+  const arcFrac = scheduled.length ? arcDone / scheduled.length : 0;
+  const todayDone = todayList.filter((e) => day?.exercises[e.id]?.done).length;
 
   const isToday = date === todayISO();
   const isFuture = date > todayISO();
@@ -98,6 +107,41 @@ export function CategoryView({
     setAdding(false);
     setEditId(null);
   };
+
+  const renderForm = (ex?: { id: string }) => (
+    <MovementForm
+      key={ex ? `edit-${ex.id}` : "add"}
+      category={category}
+      initial={ex ? live.find((e) => e.id === ex.id) ?? archived.find((e) => e.id === ex.id) : undefined}
+      onSave={(p) => {
+        if (ex) updateExercise(ex.id, p);
+        else addExercise(p);
+        closeForm();
+      }}
+      onCancel={closeForm}
+    />
+  );
+
+  const manageRow = (ex: (typeof all)[number]) => (
+    <MovementRow
+      key={ex.id}
+      ex={ex}
+      log={undefined}
+      onToggle={() => {}}
+      onFeel={() => {}}
+      manage={{
+        archived: ex.archived,
+        onEdit: () => {
+          setEditId(ex.id);
+          setAdding(false);
+        },
+        onArchive: () => updateExercise(ex.id, { archived: !ex.archived }),
+        onDelete: () => {
+          if (confirm(`Delete "${ex.name}"? This can't be undone.`)) removeExercise(ex.id);
+        },
+      }}
+    />
+  );
 
   return (
     <div className="space-y-7">
@@ -131,124 +175,129 @@ export function CategoryView({
       </div>
 
       {showArc ? (
-        <SessionArc frac={frac} done={doneCount} total={live.length} noun="rehab movement" />
+        <SessionArc frac={arcFrac} done={arcDone} total={scheduled.length} noun="rehab movement" />
       ) : (
         <div className="text-center">
           <h2 className="font-display text-3xl text-slate-800">{meta.headline}</h2>
           <p className="mx-auto mt-1 max-w-xs text-sm text-slate-400">{meta.blurb}</p>
-          {live.length > 0 && (
+          {todayList.length > 0 && (
             <p className="mt-2 text-sm font-medium text-brand-700">
-              {doneCount} of {live.length} done today
+              {todayDone} of {todayList.length} done today
             </p>
           )}
         </div>
       )}
 
-      {/* List header with manage toggle */}
-      <section className="space-y-2.5">
-        <div className="flex items-center justify-between px-1">
-          <h3 className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-400">
-            {showArc ? meta.headline : "Movements"}
-          </h3>
-          {all.length > 0 && (
+      {/* Manage mode: the whole library */}
+      {editing ? (
+        <section className="space-y-2.5">
+          <div className="flex items-center justify-between px-1">
+            <h3 className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-400">
+              Your {meta.label.toLowerCase()} library
+            </h3>
             <button
               onClick={() => {
-                setEditing((v) => !v);
+                setEditing(false);
                 closeForm();
               }}
               className="text-sm font-medium text-brand-600 hover:underline"
             >
-              {editing ? "Done" : "Edit list"}
+              Done
             </button>
+          </div>
+          {live.map((ex) => (editId === ex.id ? renderForm(ex) : manageRow(ex)))}
+          {archived.length > 0 && (
+            <p className="px-1 pt-2 text-[11px] font-medium uppercase tracking-wide text-slate-300">
+              Archived
+            </p>
           )}
-        </div>
-
-        {/* Live movements */}
-        {live.map((ex) =>
-          editId === ex.id ? (
-            <MovementForm
-              key={ex.id}
-              category={category}
-              initial={ex}
-              onSave={(p) => {
-                updateExercise(ex.id, p);
-                closeForm();
-              }}
-              onCancel={closeForm}
-            />
+          {archived.map((ex) => (editId === ex.id ? renderForm(ex) : manageRow(ex)))}
+          {adding ? (
+            renderForm()
           ) : (
-            <MovementRow
-              key={ex.id}
-              ex={ex}
-              log={day?.exercises[ex.id]}
-              onToggle={() => toggleExercise(date, ex.id)}
-              onFeel={(f) => setExerciseFeel(date, ex.id, f)}
-              manage={
-                editing
-                  ? {
-                      onEdit: () => {
-                        setEditId(ex.id);
-                        setAdding(false);
-                      },
-                      onArchive: () => updateExercise(ex.id, { archived: true }),
-                      onDelete: () => {
-                        if (confirm(`Delete "${ex.name}"? This can't be undone.`)) removeExercise(ex.id);
-                      },
-                    }
-                  : undefined
-              }
-            />
-          ),
-        )}
+            !editId && (
+              <button
+                onClick={() => setAdding(true)}
+                className="w-full rounded-3xl border-2 border-dashed border-slate-200 py-4 text-sm font-medium text-slate-400 transition hover:border-brand-300 hover:text-brand-600"
+              >
+                + New {meta.label.toLowerCase()} movement
+              </button>
+            )
+          )}
+        </section>
+      ) : (
+        <>
+          {/* Today's list */}
+          <section className="space-y-2.5">
+            <div className="flex items-center justify-between px-1">
+              <h3 className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-400">
+                {showArc ? "Today's rehab" : "Today's workout"}
+              </h3>
+              {all.length > 0 && (
+                <button
+                  onClick={() => setEditing(true)}
+                  className="text-sm font-medium text-brand-600 hover:underline"
+                >
+                  Edit list
+                </button>
+              )}
+            </div>
 
-        {/* Archived (only while editing) */}
-        {editing &&
-          archived.map((ex) => (
-            <MovementRow
-              key={ex.id}
-              ex={ex}
-              log={undefined}
-              onToggle={() => {}}
-              onFeel={() => {}}
-              manage={{
-                archived: true,
-                onEdit: () => setEditId(ex.id),
-                onArchive: () => updateExercise(ex.id, { archived: false }),
-                onDelete: () => {
-                  if (confirm(`Delete "${ex.name}"? This can't be undone.`)) removeExercise(ex.id);
-                },
-              }}
-            />
-          ))}
+            {todayList.map((ex) => (
+              <MovementRow
+                key={ex.id}
+                ex={ex}
+                log={day?.exercises[ex.id]}
+                onToggle={() => toggleExercise(date, ex.id)}
+                onFeel={(f) => setExerciseFeel(date, ex.id, f)}
+                onRemove={ex.daily ? undefined : () => clearDayExercise(date, ex.id)}
+              />
+            ))}
 
-        {/* Add */}
-        {adding ? (
-          <MovementForm
-            category={category}
-            onSave={(p) => {
-              addExercise(p);
-              closeForm();
-            }}
-            onCancel={closeForm}
-          />
-        ) : (
-          !editId && (
+            {todayList.length === 0 && (
+              <p className="rounded-3xl border border-dashed border-slate-200 bg-surface px-4 py-6 text-center text-sm text-slate-400">
+                {showArc
+                  ? "No daily rehab set yet. Add the movements to do every day — they'll repeat here automatically."
+                  : "Nothing logged today. Pick from your library below, or add something new."}
+              </p>
+            )}
+          </section>
+
+          {/* Library picker */}
+          {libraryAvail.length > 0 && (
+            <section className="space-y-2.5 rounded-3xl border border-slate-200 bg-surface p-4">
+              <h3 className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-400">
+                Add from your library
+              </h3>
+              <div className="flex flex-wrap gap-2">
+                {libraryAvail.map((ex) => (
+                  <button
+                    key={ex.id}
+                    onClick={() => toggleExercise(date, ex.id)}
+                    className="rounded-full border border-slate-200 px-3.5 py-2 text-sm font-medium text-slate-600 transition hover:border-brand-300 hover:bg-brand-50 hover:text-brand-700"
+                  >
+                    + {ex.name}
+                  </button>
+                ))}
+              </div>
+            </section>
+          )}
+
+          {/* Add new */}
+          {adding ? (
+            renderForm()
+          ) : (
             <button
-              onClick={() => {
-                setAdding(true);
-                setEditId(null);
-              }}
+              onClick={() => setAdding(true)}
               className="w-full rounded-3xl border-2 border-dashed border-slate-200 py-4 text-sm font-medium text-slate-400 transition hover:border-brand-300 hover:text-brand-600"
             >
-              + Add {meta.label.toLowerCase()} movement
+              {showArc
+                ? "+ New daily rehab movement"
+                : "+ New exercise (saved to your library)"}
             </button>
-          )
-        )}
-
-        {all.length === 0 && !adding && (
-          <p className="px-1 text-center text-sm text-slate-400">{meta.blurb}</p>
-        )}
-      </section>
+          )}
+        </>
+      )}
 
       {/* Rehab check-in */}
       {showCheckin && (

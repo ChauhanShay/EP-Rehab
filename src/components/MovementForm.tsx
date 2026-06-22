@@ -5,6 +5,7 @@ import { clsx } from "../utils";
 export interface MovementPayload {
   name: string;
   category: Category;
+  daily: boolean;
   area: string;
   sets?: number;
   reps?: number;
@@ -37,12 +38,14 @@ export function MovementForm({
   const [reps, setReps] = useState(initial?.reps?.toString() ?? "");
   const [hold, setHold] = useState(initial?.holdSeconds?.toString() ?? "");
   const [cue, setCue] = useState(initial?.cue ?? "");
+  const [daily, setDaily] = useState(initial?.daily ?? category === "rehab");
 
   const submit = () => {
     if (!name.trim()) return;
     onSave({
       name: name.trim(),
       category,
+      daily,
       area: area.trim(),
       sets: numOrUndef(sets),
       reps: numOrUndef(reps),
@@ -78,6 +81,35 @@ export function MovementForm({
         value={cue}
         onChange={(e) => setCue(e.target.value)}
       />
+      <button
+        type="button"
+        onClick={() => setDaily((v) => !v)}
+        className="flex w-full items-center justify-between rounded-2xl bg-slate-50 px-4 py-3 text-left"
+      >
+        <span>
+          <span className="block text-sm font-medium text-slate-700">
+            Repeat every day
+          </span>
+          <span className="block text-xs text-slate-400">
+            {daily
+              ? "Shows up automatically each day."
+              : "Stays in the library — add it on the days you do it."}
+          </span>
+        </span>
+        <span
+          className={clsx(
+            "relative h-6 w-11 shrink-0 rounded-full transition",
+            daily ? "bg-brand-600" : "bg-slate-300",
+          )}
+        >
+          <span
+            className={clsx(
+              "absolute top-0.5 h-5 w-5 rounded-full bg-white transition-all",
+              daily ? "left-[22px]" : "left-0.5",
+            )}
+          />
+        </span>
+      </button>
       <div className="flex gap-2">
         <button
           onClick={submit}

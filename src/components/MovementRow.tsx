@@ -19,12 +19,14 @@ export function MovementRow({
   log,
   onToggle,
   onFeel,
+  onRemove,
   manage,
 }: {
   ex: Exercise;
   log: ExerciseLog | undefined;
   onToggle: () => void;
   onFeel: (f: FeelTrend) => void;
+  onRemove?: () => void;
   manage?: ManageActions;
 }) {
   const done = !!log?.done;
@@ -76,6 +78,16 @@ export function MovementRow({
             )}
             {manage?.archived && (
               <span className="text-[11px] text-slate-400">archived</span>
+            )}
+            {onRemove && !manage && (
+              <button
+                onClick={onRemove}
+                className="ml-auto shrink-0 text-slate-300 transition hover:text-rose-500"
+                aria-label={`Remove ${ex.name} from today`}
+                title="Remove from today"
+              >
+                ✕
+              </button>
             )}
           </div>
           {meta && <div className="mt-0.5 text-sm text-slate-400">{meta}</div>}

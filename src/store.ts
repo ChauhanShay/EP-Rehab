@@ -23,10 +23,11 @@ function load(): AppData {
     return {
       version: 1,
       person: parsed.person ?? "",
-      // older entries may predate categories — default them to rehab
+      // older entries predate categories/daily — default sensibly
       exercises: parsed.exercises.map((e) => ({
         ...e,
         category: e.category ?? "rehab",
+        daily: e.daily ?? (e.category ?? "rehab") === "rehab",
       })),
       days: parsed.days ?? {},
       milestones: parsed.milestones ?? [],
@@ -84,6 +85,16 @@ export function useStore() {
         },
       };
       return { ...d, days: { ...d.days, [date]: next } };
+    });
+  }, []);
+
+  const clearDayExercise = useCallback((date: string, exId: string) => {
+    setData((d) => {
+      const day = d.days[date];
+      if (!day || !day.exercises[exId]) return d;
+      const rest = { ...day.exercises };
+      delete rest[exId];
+      return { ...d, days: { ...d.days, [date]: { ...day, exercises: rest } } };
     });
   }, []);
 
@@ -158,6 +169,7 @@ export function useStore() {
     updateExercise,
     removeExercise,
     toggleExercise,
+    clearDayExercise,
     setExerciseFeel,
     setDayField,
     addMilestone,
