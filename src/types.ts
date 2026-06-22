@@ -30,6 +30,7 @@ export interface Exercise {
   id: string;
   name: string;
   category: Category;
+  daily: boolean; // true = repeats automatically every day; false = pick from library per day
   area: string;
   sets?: number;
   reps?: number;
