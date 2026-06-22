@@ -1,8 +1,16 @@
 export type FeelTrend = "easier" | "same" | "harder";
 
+export type Category = "rehab" | "exercise";
+
+export const CATEGORIES: { key: Category; label: string }[] = [
+  { key: "rehab", label: "Rehab" },
+  { key: "exercise", label: "Exercise" },
+];
+
 export interface Exercise {
   id: string;
   name: string;
+  category: Category;
   area: string;
   sets?: number;
   reps?: number;
@@ -22,7 +30,7 @@ export interface DayLog {
   exercises: Record<string, ExerciseLog>;
   effort?: number; // 1-10, how hard the session felt
   pain?: number; // 0-10, discomfort during/after
-  mobility?: number; // 1-5, how freely she moved (1 stiff -> 5 free)
+  mobility?: number; // 1-5, how freely you moved (1 stiff -> 5 free)
   energy?: number; // 1-5, energy / mood
   note?: string;
 }

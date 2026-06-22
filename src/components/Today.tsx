@@ -1,6 +1,6 @@
 import { useMemo, type CSSProperties } from "react";
 import type { Store } from "../store";
-import type { FeelTrend } from "../types";
+import { CATEGORIES, type Exercise, type ExerciseLog, type FeelTrend } from "../types";
 import { addDays, clsx, relativeDay, todayISO } from "../utils";
 import { SessionArc } from "./SessionArc";
 
@@ -9,6 +9,89 @@ const FEELS: { key: FeelTrend; label: string }[] = [
   { key: "same", label: "Same" },
   { key: "harder", label: "Harder" },
 ];
+
+function MovementRow({
+  ex,
+  log,
+  onToggle,
+  onFeel,
+}: {
+  ex: Exercise;
+  log: ExerciseLog | undefined;
+  onToggle: () => void;
+  onFeel: (f: FeelTrend) => void;
+}) {
+  const done = !!log?.done;
+  const meta = [
+    ex.sets && ex.reps ? `${ex.sets}×${ex.reps}` : ex.reps ? `${ex.reps} reps` : "",
+    ex.holdSeconds ? `${ex.holdSeconds}s hold` : "",
+  ]
+    .filter(Boolean)
+    .join("  ·  ");
+  return (
+    <div
+      className={clsx(
+        "rounded-3xl border p-4 transition",
+        done ? "border-brand-200 bg-brand-50/50" : "border-slate-200 bg-surface",
+      )}
+    >
+      <div className="flex items-start gap-3.5">
+        <button
+          onClick={onToggle}
+          aria-pressed={done}
+          aria-label={done ? `Mark ${ex.name} not done` : `Mark ${ex.name} done`}
+          className={clsx(
+            "mt-0.5 grid h-8 w-8 shrink-0 place-items-center rounded-full border-2 text-sm transition",
+            done
+              ? "border-brand-600 bg-brand-600 text-white"
+              : "border-slate-300 text-transparent hover:border-brand-400",
+          )}
+        >
+          ✓
+        </button>
+        <div className="min-w-0 flex-1">
+          <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+            <span
+              className={clsx(
+                "font-medium",
+                done ? "text-slate-400 line-through" : "text-slate-800",
+              )}
+            >
+              {ex.name}
+            </span>
+            {ex.area && (
+              <span className="rounded-full bg-slate-100 px-2 py-0.5 text-[11px] text-slate-500">
+                {ex.area}
+              </span>
+            )}
+          </div>
+          {meta && <div className="mt-0.5 text-sm text-slate-400">{meta}</div>}
+          {ex.cue && <div className="mt-1 text-xs italic text-slate-400">{ex.cue}</div>}
+
+          {done && (
+            <div className="mt-3 flex flex-wrap items-center gap-1.5">
+              <span className="mr-0.5 text-xs text-slate-400">vs last time</span>
+              {FEELS.map((f) => (
+                <button
+                  key={f.key}
+                  onClick={() => onFeel(f.key)}
+                  className={clsx(
+                    "rounded-full px-3 py-1 text-xs font-medium transition",
+                    log?.feel === f.key
+                      ? "bg-brand-600 text-white"
+                      : "bg-slate-100 text-slate-500 hover:bg-slate-200",
+                  )}
+                >
+                  {f.label}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
 
 function Slider({
   label,
@@ -119,99 +202,42 @@ export function Today({
       {/* Signature arc */}
       <SessionArc frac={frac} done={doneCount} total={active.length} />
 
-      {/* Movements */}
-      <section className="space-y-2.5">
-        <h2 className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-400">
-          Today's movements
-        </h2>
-        {active.length === 0 && (
-          <p className="rounded-3xl border border-dashed border-slate-200 bg-surface p-7 text-center text-sm text-slate-400">
-            No movements yet. Add a few in the Plan tab and they'll show up here.
-          </p>
-        )}
-        {active.map((ex) => {
-          const log = day?.exercises[ex.id];
-          const done = !!log?.done;
-          const meta = [
-            ex.sets && ex.reps
-              ? `${ex.sets}×${ex.reps}`
-              : ex.reps
-                ? `${ex.reps} reps`
-                : "",
-            ex.holdSeconds ? `${ex.holdSeconds}s hold` : "",
-          ]
-            .filter(Boolean)
-            .join("  ·  ");
-          return (
-            <div
-              key={ex.id}
-              className={clsx(
-                "rounded-3xl border p-4 transition",
-                done
-                  ? "border-brand-200 bg-brand-50/50"
-                  : "border-slate-200 bg-surface",
-              )}
-            >
-              <div className="flex items-start gap-3.5">
-                <button
-                  onClick={() => toggleExercise(date, ex.id)}
-                  aria-pressed={done}
-                  aria-label={done ? `Mark ${ex.name} not done` : `Mark ${ex.name} done`}
-                  className={clsx(
-                    "mt-0.5 grid h-8 w-8 shrink-0 place-items-center rounded-full border-2 text-sm transition",
-                    done
-                      ? "border-brand-600 bg-brand-600 text-white"
-                      : "border-slate-300 text-transparent hover:border-brand-400",
-                  )}
-                >
-                  ✓
-                </button>
-                <div className="min-w-0 flex-1">
-                  <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
-                    <span
-                      className={clsx(
-                        "font-medium",
-                        done ? "text-slate-400 line-through" : "text-slate-800",
-                      )}
-                    >
-                      {ex.name}
-                    </span>
-                    <span className="rounded-full bg-slate-100 px-2 py-0.5 text-[11px] text-slate-500">
-                      {ex.area}
-                    </span>
-                  </div>
-                  {meta && <div className="mt-0.5 text-sm text-slate-400">{meta}</div>}
-                  {ex.cue && (
-                    <div className="mt-1 text-xs italic text-slate-400">{ex.cue}</div>
-                  )}
-
-                  {done && (
-                    <div className="mt-3 flex flex-wrap items-center gap-1.5">
-                      <span className="mr-0.5 text-xs text-slate-400">
-                        vs last time
-                      </span>
-                      {FEELS.map((f) => (
-                        <button
-                          key={f.key}
-                          onClick={() => setExerciseFeel(date, ex.id, f.key)}
-                          className={clsx(
-                            "rounded-full px-3 py-1 text-xs font-medium transition",
-                            log?.feel === f.key
-                              ? "bg-brand-600 text-white"
-                              : "bg-slate-100 text-slate-500 hover:bg-slate-200",
-                          )}
-                        >
-                          {f.label}
-                        </button>
-                      ))}
-                    </div>
-                  )}
+      {/* Movements, grouped into Rehab and Exercise */}
+      {active.length === 0 ? (
+        <p className="rounded-3xl border border-dashed border-slate-200 bg-surface p-7 text-center text-sm text-slate-400">
+          Nothing planned yet. Add your Rehab and Exercise movements in the Plan
+          tab and they'll show up here each day.
+        </p>
+      ) : (
+        <div className="space-y-7">
+          {CATEGORIES.map((cat) => {
+            const items = active.filter((e) => e.category === cat.key);
+            if (items.length === 0) return null;
+            const catDone = items.filter((e) => day?.exercises[e.id]?.done).length;
+            return (
+              <section key={cat.key} className="space-y-2.5">
+                <div className="flex items-baseline justify-between">
+                  <h2 className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-400">
+                    {cat.label}
+                  </h2>
+                  <span className="text-xs tabular-nums text-slate-400">
+                    {catDone}/{items.length}
+                  </span>
                 </div>
-              </div>
-            </div>
-          );
-        })}
-      </section>
+                {items.map((ex) => (
+                  <MovementRow
+                    key={ex.id}
+                    ex={ex}
+                    log={day?.exercises[ex.id]}
+                    onToggle={() => toggleExercise(date, ex.id)}
+                    onFeel={(f) => setExerciseFeel(date, ex.id, f)}
+                  />
+                ))}
+              </section>
+            );
+          })}
+        </div>
+      )}
 
       {/* Session check-in */}
       <section className="space-y-5 rounded-3xl border border-slate-200 bg-surface p-5">
@@ -230,7 +256,7 @@ export function Today({
           min={1}
           max={10}
           lowLabel="Easy"
-          highLabel="All she had"
+          highLabel="All out"
           tint="#d38c34"
         />
         <Slider
@@ -244,7 +270,7 @@ export function Today({
           tint="#bc7a57"
         />
         <Slider
-          label="Mobility — how freely she moved"
+          label="Mobility — how freely you moved"
           value={day?.mobility}
           set={(v) => setDayField(date, { mobility: v })}
           min={1}

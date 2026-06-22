@@ -5,27 +5,10 @@ import { isoDate, uid } from "./utils";
 const STORAGE_KEY = "ep-rehab/v1";
 
 function seed(): AppData {
-  const now = isoDate();
-  const mk = (
-    name: string,
-    area: string,
-    extra: Partial<Exercise> = {},
-  ): Exercise => ({
-    id: uid(),
-    name,
-    area,
-    createdAt: now,
-    ...extra,
-  });
   return {
     version: 1,
-    person: "",
-    exercises: [
-      mk("Ankle pumps", "Ankle", { sets: 2, reps: 15, cue: "Slow and controlled, full range." }),
-      mk("Seated knee extensions", "Knee", { sets: 3, reps: 10, cue: "Straighten fully, hold 2s." }),
-      mk("Glute bridge", "Hips", { sets: 3, reps: 8, holdSeconds: 5 }),
-      mk("Standing balance", "Balance", { holdSeconds: 30, cue: "Hold a surface if needed." }),
-    ],
+    person: "Evie",
+    exercises: [],
     days: {},
     milestones: [],
   };
@@ -40,7 +23,11 @@ function load(): AppData {
     return {
       version: 1,
       person: parsed.person ?? "",
-      exercises: parsed.exercises,
+      // older entries may predate categories — default them to rehab
+      exercises: parsed.exercises.map((e) => ({
+        ...e,
+        category: e.category ?? "rehab",
+      })),
       days: parsed.days ?? {},
       milestones: parsed.milestones ?? [],
     };
