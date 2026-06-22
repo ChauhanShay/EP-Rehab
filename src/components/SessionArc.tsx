@@ -30,10 +30,12 @@ export function SessionArc({
   frac,
   done,
   total,
+  noun = "movement",
 }: {
   frac: number;
   done: number;
   total: number;
+  noun?: string;
 }) {
   const [anim, setAnim] = useState(prefersReduced() ? frac : 0);
   const raf = useRef<number>(0);
@@ -71,8 +73,8 @@ export function SessionArc({
           : "Keep going";
   const sub =
     total === 0
-      ? "Add movements in Plan"
-      : `${done} of ${total} movement${total === 1 ? "" : "s"}`;
+      ? "Add daily rehab in Plan"
+      : `${done} of ${total} ${noun}${total === 1 ? "" : "s"} done`;
 
   return (
     <div className="relative mx-auto w-full max-w-[300px]">

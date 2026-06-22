@@ -163,8 +163,10 @@ export function Today({
     [data.exercises],
   );
   const day = data.days[date];
-  const doneCount = active.filter((e) => day?.exercises[e.id]?.done).length;
-  const frac = active.length ? doneCount / active.length : 0;
+  // The arc tracks daily rehab only — that's the must-do recovery work.
+  const rehab = active.filter((e) => e.category === "rehab");
+  const rehabDone = rehab.filter((e) => day?.exercises[e.id]?.done).length;
+  const frac = rehab.length ? rehabDone / rehab.length : 0;
   const isToday = date === todayISO();
   const isFuture = date > todayISO();
 
@@ -199,28 +201,43 @@ export function Today({
         </button>
       </div>
 
-      {/* Signature arc */}
-      <SessionArc frac={frac} done={doneCount} total={active.length} />
+      {/* Signature arc — daily rehab progress */}
+      <SessionArc frac={frac} done={rehabDone} total={rehab.length} noun="rehab movement" />
 
-      {/* Movements, grouped into Rehab and Exercise */}
+      {/* Movements, grouped into Daily rehab and General exercise */}
       {active.length === 0 ? (
-        <p className="rounded-3xl border border-dashed border-slate-200 bg-surface p-7 text-center text-sm text-slate-400">
-          Nothing planned yet. Add your Rehab and Exercise movements in the Plan
-          tab and they'll show up here each day.
-        </p>
+        <div className="space-y-3 rounded-3xl border border-dashed border-slate-200 bg-surface p-6 text-sm text-slate-500">
+          <p className="font-medium text-slate-700">Nothing planned yet.</p>
+          <p>
+            <span className="font-medium text-brand-700">Daily rehab</span> — the
+            small movements to do every day. These track your recovery and build
+            your streak.
+          </p>
+          <p>
+            <span className="font-medium text-slate-700">General exercise</span> —
+            optional extras like squats or a walk, for when you're up to it.
+          </p>
+          <p className="text-slate-400">Add them in the Plan tab to get started.</p>
+        </div>
       ) : (
         <div className="space-y-7">
           {CATEGORIES.map((cat) => {
             const items = active.filter((e) => e.category === cat.key);
             if (items.length === 0) return null;
             const catDone = items.filter((e) => day?.exercises[e.id]?.done).length;
+            const optional = cat.key === "exercise";
             return (
               <section key={cat.key} className="space-y-2.5">
-                <div className="flex items-baseline justify-between">
-                  <h2 className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-400">
-                    {cat.label}
+                <div className="flex items-baseline justify-between gap-2">
+                  <h2 className="flex items-baseline gap-2 text-sm font-semibold text-slate-700">
+                    {cat.headline}
+                    {optional && (
+                      <span className="rounded-full bg-slate-100 px-2 py-0.5 text-[10px] font-medium uppercase tracking-wide text-slate-400">
+                        optional
+                      </span>
+                    )}
                   </h2>
-                  <span className="text-xs tabular-nums text-slate-400">
+                  <span className="shrink-0 text-xs tabular-nums text-slate-400">
                     {catDone}/{items.length}
                   </span>
                 </div>

@@ -229,8 +229,7 @@ export function Program({ store }: { store: Store }) {
       <div className="px-1">
         <h2 className="font-display text-2xl text-slate-800">The plan</h2>
         <p className="mt-0.5 text-sm text-slate-400">
-          Build the movements you'll work through each day, split into rehab and
-          exercise.
+          What shows up each day, in two groups.
         </p>
       </div>
 
@@ -240,22 +239,26 @@ export function Program({ store }: { store: Store }) {
         const items = data.exercises.filter((e) => e.category === cat.key);
         return (
           <section key={cat.key} className="space-y-2.5">
-            <div className="flex items-center justify-between px-1">
-              <h3 className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-400">
-                {cat.label}
-              </h3>
-              {!busy && (
-                <button
-                  onClick={() => startAdd(cat.key)}
-                  className="rounded-full bg-brand-50 px-3 py-1 text-sm font-semibold text-brand-700 transition hover:bg-brand-100"
-                >
-                  + Add
-                </button>
-              )}
+            <div className="px-1">
+              <div className="flex items-center justify-between gap-2">
+                <h3 className="font-display text-lg text-slate-800">
+                  {cat.headline}
+                </h3>
+                {!busy && (
+                  <button
+                    onClick={() => startAdd(cat.key)}
+                    className="shrink-0 rounded-full bg-brand-50 px-3.5 py-1.5 text-sm font-semibold text-brand-700 transition hover:bg-brand-100"
+                  >
+                    + Add
+                  </button>
+                )}
+              </div>
+              <p className="mt-0.5 text-sm text-slate-400">{cat.blurb}</p>
             </div>
             {items.length === 0 ? (
               <p className="rounded-3xl border border-dashed border-slate-200 bg-surface px-4 py-5 text-center text-sm text-slate-400">
-                No {cat.label.toLowerCase()} movements yet.
+                Nothing here yet — tap “+ Add” to add a {cat.label.toLowerCase()}{" "}
+                movement.
               </p>
             ) : (
               items.map(card)

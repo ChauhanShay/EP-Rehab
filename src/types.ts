@@ -2,9 +2,28 @@ export type FeelTrend = "easier" | "same" | "harder";
 
 export type Category = "rehab" | "exercise";
 
-export const CATEGORIES: { key: Category; label: string }[] = [
-  { key: "rehab", label: "Rehab" },
-  { key: "exercise", label: "Exercise" },
+export interface CategoryMeta {
+  key: Category;
+  label: string; // short, for toggles and counts
+  headline: string; // section heading
+  blurb: string; // one-line explanation of what belongs here
+}
+
+export const CATEGORIES: CategoryMeta[] = [
+  {
+    key: "rehab",
+    label: "Rehab",
+    headline: "Daily rehab",
+    blurb:
+      "The small movements to do every day. These are what the day's progress and your streak are built on.",
+  },
+  {
+    key: "exercise",
+    label: "Exercise",
+    headline: "General exercise",
+    blurb:
+      "Optional extras like squats or a walk. Good to do when you can — they don't count towards the daily goal.",
+  },
 ];
 
 export interface Exercise {
