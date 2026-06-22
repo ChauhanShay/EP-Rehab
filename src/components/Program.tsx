@@ -68,10 +68,10 @@ export function Program({ store }: { store: Store }) {
   };
 
   const field =
-    "w-full rounded-xl border border-slate-200 px-3 py-2 text-sm outline-none transition focus:border-brand-400 focus:ring-2 focus:ring-brand-100";
+    "w-full rounded-2xl border border-slate-200 bg-surface px-3.5 py-2.5 text-sm outline-none transition focus:border-brand-400 focus:ring-2 focus:ring-brand-100";
 
   const FormCard = (
-    <div className="space-y-3 rounded-2xl border border-brand-200 bg-white p-4 shadow-sm">
+    <div className="space-y-3 rounded-3xl border border-brand-200 bg-surface p-4 shadow-sm">
       <input
         autoFocus
         className={field}
@@ -122,13 +122,13 @@ export function Program({ store }: { store: Store }) {
         <button
           onClick={submit}
           disabled={!form.name.trim()}
-          className="flex-1 rounded-xl bg-brand-600 py-2.5 text-sm font-semibold text-white transition hover:bg-brand-700 disabled:opacity-40"
+          className="flex-1 rounded-2xl bg-brand-600 py-2.5 text-sm font-semibold text-white transition hover:bg-brand-700 disabled:opacity-40"
         >
           {editingId ? "Save changes" : "Add exercise"}
         </button>
         <button
           onClick={cancel}
-          className="rounded-xl border border-slate-200 px-4 py-2.5 text-sm font-medium text-slate-500 transition hover:bg-slate-50"
+          className="rounded-2xl border border-slate-200 px-4 py-2.5 text-sm font-medium text-slate-500 transition hover:bg-slate-50"
         >
           Cancel
         </button>
@@ -138,14 +138,17 @@ export function Program({ store }: { store: Store }) {
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between px-1">
-        <h2 className="text-sm font-semibold uppercase tracking-wide text-slate-400">
-          The programme
-        </h2>
+      <div className="flex items-end justify-between px-1">
+        <div>
+          <h2 className="font-display text-2xl text-slate-800">The plan</h2>
+          <p className="mt-0.5 text-sm text-slate-400">
+            The movements that show up each day.
+          </p>
+        </div>
         {!adding && !editingId && (
           <button
             onClick={startAdd}
-            className="rounded-full bg-brand-600 px-3.5 py-1.5 text-sm font-semibold text-white transition hover:bg-brand-700"
+            className="shrink-0 rounded-full bg-brand-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-brand-700"
           >
             + Add
           </button>
@@ -155,8 +158,8 @@ export function Program({ store }: { store: Store }) {
       {adding && FormCard}
 
       {data.exercises.length === 0 && !adding && (
-        <p className="rounded-2xl border border-dashed border-slate-200 bg-white p-6 text-center text-sm text-slate-400">
-          No exercises yet. Tap “Add” to build the programme.
+        <p className="rounded-3xl border border-dashed border-slate-200 bg-surface p-7 text-center text-sm text-slate-400">
+          No movements yet. Tap “Add” to start the plan.
         </p>
       )}
 
@@ -168,7 +171,7 @@ export function Program({ store }: { store: Store }) {
             <div
               key={ex.id}
               className={clsx(
-                "rounded-2xl border border-slate-200 bg-white p-4",
+                "rounded-3xl border border-slate-200 bg-surface p-4",
                 ex.archived && "opacity-60",
               )}
             >

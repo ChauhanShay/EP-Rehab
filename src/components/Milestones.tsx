@@ -22,22 +22,20 @@ export function Milestones({ store }: { store: Store }) {
   return (
     <div className="space-y-4">
       <div className="px-1">
-        <h2 className="text-sm font-semibold uppercase tracking-wide text-slate-400">
-          Wins & milestones
-        </h2>
-        <p className="mt-0.5 text-xs text-slate-400">
-          The progress numbers miss — “knelt without pain”, “walked to the shop”,
-          “first stair without the rail”. These are the real proof it’s working.
+        <h2 className="font-display text-2xl text-slate-800">Wins</h2>
+        <p className="mt-1 text-sm text-slate-400">
+          The things numbers miss — “knelt without pain”, “walked to the shop”,
+          “first stair without the rail”. Logged here, they add up to proof.
         </p>
       </div>
 
-      <div className="space-y-3 rounded-2xl border border-slate-200 bg-white p-4">
+      <div className="space-y-3 rounded-3xl border border-slate-200 bg-surface p-4">
         <textarea
           rows={2}
           value={text}
           onChange={(e) => setText(e.target.value)}
-          placeholder="What went well or felt easier than before?"
-          className="w-full resize-none rounded-xl border border-slate-200 px-3 py-2 text-sm outline-none transition focus:border-brand-400 focus:ring-2 focus:ring-brand-100"
+          placeholder="What went well, or felt easier than before?"
+          className="w-full resize-none rounded-2xl border border-slate-200 px-3.5 py-2.5 text-sm outline-none transition focus:border-brand-400 focus:ring-2 focus:ring-brand-100"
         />
         <div className="flex items-center gap-2">
           <input
@@ -45,12 +43,12 @@ export function Milestones({ store }: { store: Store }) {
             value={date}
             max={todayISO()}
             onChange={(e) => setDate(e.target.value)}
-            className="rounded-xl border border-slate-200 px-3 py-2 text-sm text-slate-600 outline-none focus:border-brand-400"
+            className="rounded-2xl border border-slate-200 px-3.5 py-2.5 text-sm text-slate-600 outline-none focus:border-brand-400"
           />
           <button
             onClick={submit}
             disabled={!text.trim()}
-            className="ml-auto rounded-xl bg-brand-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-brand-700 disabled:opacity-40"
+            className="ml-auto rounded-2xl bg-brand-600 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-brand-700 disabled:opacity-40"
           >
             Log win
           </button>
@@ -58,17 +56,17 @@ export function Milestones({ store }: { store: Store }) {
       </div>
 
       {sorted.length === 0 ? (
-        <p className="rounded-2xl border border-dashed border-slate-200 bg-white p-6 text-center text-sm text-slate-400">
-          No wins logged yet — the first one’s coming. 💪
+        <p className="rounded-3xl border border-dashed border-slate-200 bg-surface p-7 text-center text-sm text-slate-400">
+          No wins yet — the first one's on its way. 🌱
         </p>
       ) : (
         <ul className="space-y-2.5">
           {sorted.map((m) => (
             <li
               key={m.id}
-              className="flex items-start gap-3 rounded-2xl border border-slate-200 bg-white p-4"
+              className="flex items-start gap-3 rounded-3xl border border-slate-200 bg-surface p-4"
             >
-              <span className="mt-0.5 text-lg">🏅</span>
+              <span className="mt-0.5 text-lg" aria-hidden="true">🌱</span>
               <div className="min-w-0 flex-1">
                 <p className="text-slate-800">{m.text}</p>
                 <p className="mt-0.5 text-xs text-slate-400">{formatShort(m.date)}</p>
