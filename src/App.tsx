@@ -4,19 +4,18 @@ import type { AppData } from "./types";
 import { clsx, formatLong, formatShort, todayISO } from "./utils";
 
 const BACKUP_KEY = "ep-rehab/last-backup";
-import { Today } from "./components/Today";
-import { Program } from "./components/Program";
+import { CategoryView } from "./components/CategoryView";
 import { Progress } from "./components/Progress";
 import { Milestones } from "./components/Milestones";
-import { TodayIcon, ProgressIcon, WinsIcon, PlanIcon } from "./components/icons";
+import { RehabIcon, ExerciseIcon, ProgressIcon, WinsIcon } from "./components/icons";
 
-type Tab = "today" | "progress" | "wins" | "plan";
+type Tab = "rehab" | "exercise" | "progress" | "wins";
 
-const TABS: { key: Tab; label: string; Icon: typeof TodayIcon }[] = [
-  { key: "today", label: "Today", Icon: TodayIcon },
+const TABS: { key: Tab; label: string; Icon: typeof RehabIcon }[] = [
+  { key: "rehab", label: "Rehab", Icon: RehabIcon },
+  { key: "exercise", label: "Exercise", Icon: ExerciseIcon },
   { key: "progress", label: "Progress", Icon: ProgressIcon },
   { key: "wins", label: "Wins", Icon: WinsIcon },
-  { key: "plan", label: "Plan", Icon: PlanIcon },
 ];
 
 function greeting(): string {
@@ -172,7 +171,7 @@ function Settings({
 
 export default function App() {
   const store = useStore();
-  const [tab, setTab] = useState<Tab>("today");
+  const [tab, setTab] = useState<Tab>("rehab");
   const [date, setDate] = useState(todayISO());
   const [showSettings, setShowSettings] = useState(false);
 
@@ -204,10 +203,14 @@ export default function App() {
       </header>
 
       <main className="flex-1 px-6 py-6">
-        {tab === "today" && <Today store={store} date={date} setDate={setDate} />}
+        {tab === "rehab" && (
+          <CategoryView store={store} date={date} setDate={setDate} category="rehab" showArc showCheckin />
+        )}
+        {tab === "exercise" && (
+          <CategoryView store={store} date={date} setDate={setDate} category="exercise" />
+        )}
         {tab === "progress" && <Progress store={store} />}
         {tab === "wins" && <Milestones store={store} />}
-        {tab === "plan" && <Program store={store} />}
       </main>
 
       {/* Bottom navigation */}
