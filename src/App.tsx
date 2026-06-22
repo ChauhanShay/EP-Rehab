@@ -1,7 +1,9 @@
 import { useRef, useState } from "react";
 import { useStore } from "./store";
 import type { AppData } from "./types";
-import { clsx, formatLong, todayISO } from "./utils";
+import { clsx, formatLong, formatShort, todayISO } from "./utils";
+
+const BACKUP_KEY = "ep-rehab/last-backup";
 import { Today } from "./components/Today";
 import { Program } from "./components/Program";
 import { Progress } from "./components/Progress";
@@ -33,6 +35,9 @@ function Settings({
 }) {
   const { data, setPerson, importData, resetAll } = store;
   const fileRef = useRef<HTMLInputElement>(null);
+  const [lastBackup, setLastBackup] = useState<string | null>(() =>
+    localStorage.getItem(BACKUP_KEY),
+  );
 
   const exportData = () => {
     const blob = new Blob([JSON.stringify(data, null, 2)], {
@@ -44,6 +49,9 @@ function Settings({
     a.download = `ep-rehab-backup-${todayISO()}.json`;
     a.click();
     URL.revokeObjectURL(url);
+    const stamp = todayISO();
+    localStorage.setItem(BACKUP_KEY, stamp);
+    setLastBackup(stamp);
   };
 
   const onImport = (file: File) => {
@@ -53,9 +61,12 @@ function Settings({
         const parsed = JSON.parse(String(reader.result)) as AppData;
         if (!Array.isArray(parsed.exercises)) throw new Error("bad file");
         importData(parsed);
+        alert("Backup restored — everything's back.");
         onClose();
       } catch {
-        alert("That doesn't look like an EP-Rehab backup file. Pick the .json file you exported.");
+        alert(
+          "That doesn't look like an EP-Rehab backup file. Pick the .json file you saved when you exported.",
+        );
       }
     };
     reader.readAsText(file);
@@ -96,25 +107,38 @@ function Settings({
           </p>
         </div>
 
-        <div className="rounded-2xl bg-slate-50 p-4 text-xs leading-relaxed text-slate-500">
-          Everything stays on this device, in this browser — no account, nothing
-          sent anywhere. Export a backup to keep it safe or move it to another
-          phone, then Import it there.
-        </div>
-
-        <div className="grid grid-cols-2 gap-2.5">
-          <button
-            onClick={exportData}
-            className="rounded-2xl border border-slate-200 py-3 text-sm font-medium text-slate-700 transition hover:bg-slate-50"
-          >
-            Export backup
-          </button>
-          <button
-            onClick={() => fileRef.current?.click()}
-            className="rounded-2xl border border-slate-200 py-3 text-sm font-medium text-slate-700 transition hover:bg-slate-50"
-          >
-            Import backup
-          </button>
+        <div className="space-y-3 rounded-2xl border border-slate-200 bg-slate-50 p-4">
+          <div>
+            <h3 className="text-sm font-semibold text-slate-700">
+              Back up your data
+            </h3>
+            <p className="mt-1 text-xs leading-relaxed text-slate-500">
+              Everything is saved on this device only — nothing is sent anywhere.
+              That keeps it private, but it also means clearing your browser or
+              losing the phone would wipe it. Save a backup now and then so you
+              never lose your progress. The file is also how you move everything
+              to another phone: export here, then import it there.
+            </p>
+            <p className="mt-2 text-xs font-medium text-slate-400">
+              {lastBackup
+                ? `Last backup saved ${formatShort(lastBackup)}.`
+                : "No backup saved yet."}
+            </p>
+          </div>
+          <div className="grid grid-cols-2 gap-2.5">
+            <button
+              onClick={exportData}
+              className="rounded-2xl bg-brand-600 py-3 text-sm font-semibold text-white transition hover:bg-brand-700"
+            >
+              Save a backup
+            </button>
+            <button
+              onClick={() => fileRef.current?.click()}
+              className="rounded-2xl border border-slate-200 bg-surface py-3 text-sm font-medium text-slate-700 transition hover:bg-slate-100"
+            >
+              Restore a backup
+            </button>
+          </div>
           <input
             ref={fileRef}
             type="file"

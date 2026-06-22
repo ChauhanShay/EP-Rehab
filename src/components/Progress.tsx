@@ -22,8 +22,9 @@ function Stat({ value, label, accent }: { value: string; label: string; accent?:
 export function Progress({ store }: { store: Store }) {
   const { data } = store;
 
+  // Streak and consistency are built on daily rehab — the must-do recovery work.
   const active = useMemo(
-    () => data.exercises.filter((e) => !e.archived),
+    () => data.exercises.filter((e) => !e.archived && e.category === "rehab"),
     [data.exercises],
   );
 
@@ -33,7 +34,7 @@ export function Progress({ store }: { store: Store }) {
     return active.filter((e) => d.exercises[e.id]?.done).length;
   };
 
-  // Current streak: consecutive days (ending today) with at least one exercise done.
+  // Current streak: consecutive days (ending today) with at least one rehab movement done.
   const streak = useMemo(() => {
     let n = 0;
     let cursor = todayISO();
