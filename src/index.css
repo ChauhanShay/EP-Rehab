@@ -1,18 +1,57 @@
 @import "tailwindcss";
 
 @theme {
-  --font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI",
-    Roboto, Helvetica, Arial, sans-serif;
-  --color-brand-50: #f0fdfa;
-  --color-brand-100: #ccfbf1;
-  --color-brand-200: #99f6e4;
-  --color-brand-300: #5eead4;
-  --color-brand-400: #2dd4bf;
-  --color-brand-500: #14b8a6;
-  --color-brand-600: #0d9488;
-  --color-brand-700: #0f766e;
-  --color-brand-800: #115e59;
-  --color-brand-900: #134e4a;
+  /* Type — a soft optical serif for the human voice, a warm grotesque for work */
+  --font-display: "Fraunces", ui-serif, Georgia, serif;
+  --font-sans: "Hanken Grotesk", ui-sans-serif, system-ui, -apple-system,
+    "Segoe UI", Roboto, sans-serif;
+
+  /* Ground + ink */
+  --color-ground: #ecf0e6;
+  --color-surface: #ffffff;
+
+  /* Neutral — warm sage-grey, overriding Tailwind's cool slate so every
+     greyscale utility already in the app sits in the warm family */
+  --color-slate-50: #f4f6f1;
+  --color-slate-100: #e8ece1;
+  --color-slate-200: #d9ddd0;
+  --color-slate-300: #c0c6b5;
+  --color-slate-400: #97a08b;
+  --color-slate-500: #79836e;
+  --color-slate-600: #5e6857;
+  --color-slate-700: #464f3f;
+  --color-slate-800: #333b2d;
+  --color-slate-900: #232e22;
+
+  /* Primary — moss green, growth and forward motion (overrides brand) */
+  --color-brand-50: #eef3ec;
+  --color-brand-100: #d9e5d7;
+  --color-brand-200: #bcd0ba;
+  --color-brand-300: #98b596;
+  --color-brand-400: #6e9277;
+  --color-brand-500: #557a5f;
+  --color-brand-600: #456b4f;
+  --color-brand-700: #375941;
+  --color-brand-800: #2c4834;
+  --color-brand-900: #233a2a;
+
+  /* Honey — warmth, encouragement, streaks (overrides amber) */
+  --color-amber-50: #fbf2df;
+  --color-amber-100: #f6e3bd;
+  --color-amber-200: #efcd8a;
+  --color-amber-300: #e7b65c;
+  --color-amber-400: #e2a24e;
+  --color-amber-500: #d38c34;
+  --color-amber-600: #b5742a;
+  --color-amber-700: #8f5b22;
+
+  /* Terracotta — discomfort and gentle caution, never an alarm (overrides rose) */
+  --color-rose-50: #f7ece5;
+  --color-rose-100: #efd6c8;
+  --color-rose-200: #e0b59c;
+  --color-rose-400: #ce8a66;
+  --color-rose-500: #bc7a57;
+  --color-rose-600: #a4623f;
 }
 
 html {
@@ -22,39 +61,60 @@ html {
 body {
   margin: 0;
   font-family: var(--font-sans);
-  background: #f6f7f6;
-  color: #1e293b;
+  background: var(--color-ground);
+  color: #232e22;
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
 }
 
-/* Quiet, consistent range sliders across the app */
+.font-display {
+  font-family: var(--font-display);
+  font-optical-sizing: auto;
+  letter-spacing: -0.01em;
+}
+
+/* Soft range sliders, tinted per metric via the --slider custom property */
 input[type="range"] {
   -webkit-appearance: none;
   appearance: none;
   width: 100%;
-  height: 8px;
+  height: 10px;
   border-radius: 9999px;
-  background: #e2e8f0;
+  background: #e3e7da;
   outline: none;
 }
 input[type="range"]::-webkit-slider-thumb {
   -webkit-appearance: none;
   appearance: none;
-  width: 22px;
-  height: 22px;
+  width: 24px;
+  height: 24px;
   border-radius: 9999px;
-  background: #0f766e;
-  border: 3px solid #ffffff;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
+  background: var(--slider, #456b4f);
+  border: 4px solid #ffffff;
+  box-shadow: 0 1px 4px rgba(35, 46, 34, 0.28);
   cursor: pointer;
 }
 input[type="range"]::-moz-range-thumb {
-  width: 22px;
-  height: 22px;
-  border: 3px solid #ffffff;
+  width: 24px;
+  height: 24px;
+  border: 4px solid #ffffff;
   border-radius: 9999px;
-  background: #0f766e;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
+  background: var(--slider, #456b4f);
+  box-shadow: 0 1px 4px rgba(35, 46, 34, 0.28);
   cursor: pointer;
+}
+input[type="range"]:focus-visible {
+  box-shadow: 0 0 0 3px rgba(69, 107, 79, 0.25);
+}
+
+*:focus-visible {
+  outline: 2px solid #456b4f;
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.001ms !important;
+    transition-duration: 0.001ms !important;
+  }
 }

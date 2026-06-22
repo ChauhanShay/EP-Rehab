@@ -1,15 +1,20 @@
 import { useMemo } from "react";
 import type { Store } from "../store";
-import { lastNDays, todayISO } from "../utils";
+import { clsx, lastNDays, todayISO } from "../utils";
 import { Heatmap, Trend, type TrendPoint } from "./Charts";
 
 function Stat({ value, label, accent }: { value: string; label: string; accent?: boolean }) {
   return (
-    <div className="rounded-2xl border border-slate-200 bg-white p-4 text-center">
-      <div className={accent ? "text-3xl font-bold text-brand-600" : "text-3xl font-bold text-slate-800"}>
+    <div className="rounded-3xl border border-slate-200 bg-surface p-4 text-center">
+      <div
+        className={clsx(
+          "font-display text-[2rem] leading-none",
+          accent ? "text-amber-500" : "text-slate-800",
+        )}
+      >
         {value}
       </div>
-      <div className="mt-0.5 text-xs text-slate-400">{label}</div>
+      <div className="mt-1.5 text-xs text-slate-400">{label}</div>
     </div>
   );
 }
@@ -68,35 +73,35 @@ export function Progress({ store }: { store: Store }) {
   return (
     <div className="space-y-5">
       <div className="grid grid-cols-3 gap-2.5">
-        <Stat value={`${streak}`} label={streak === 1 ? "day streak" : "day streak"} accent />
-        <Stat value={`${sessionsThisWeek}/7`} label="this week" />
-        <Stat value={`${totalSessions}`} label="total sessions" />
+        <Stat value={`${streak}`} label={streak === 1 ? "day in a row" : "days in a row"} accent />
+        <Stat value={`${sessionsThisWeek}/7`} label="days this week" />
+        <Stat value={`${totalSessions}`} label="sessions logged" />
       </div>
 
       <section className="space-y-2">
-        <h2 className="px-1 text-sm font-semibold uppercase tracking-wide text-slate-400">
-          Consistency · last 5 weeks
+        <h2 className="px-1 text-sm font-semibold uppercase tracking-[0.12em] text-slate-400">
+          Showing up · last 5 weeks
         </h2>
-        <div className="rounded-2xl border border-slate-200 bg-white p-4">
+        <div className="rounded-3xl border border-slate-200 bg-surface p-4">
           <Heatmap cells={heatCells} />
           <div className="mt-3 flex items-center gap-2 text-[11px] text-slate-400">
             <span>less</span>
-            <span className="h-3 w-3 rounded bg-[#dbeae7]" />
-            <span className="h-3 w-3 rounded bg-[#99f6e4]" />
-            <span className="h-3 w-3 rounded bg-[#2dd4bf]" />
-            <span className="h-3 w-3 rounded bg-[#0d9488]" />
-            <span className="h-3 w-3 rounded bg-[#0f766e]" />
+            <span className="h-3 w-3 rounded bg-[#dde4d4]" />
+            <span className="h-3 w-3 rounded bg-[#c3d6bd]" />
+            <span className="h-3 w-3 rounded bg-[#9cc093]" />
+            <span className="h-3 w-3 rounded bg-[#6e9a66]" />
+            <span className="h-3 w-3 rounded bg-[#456b4f]" />
             <span>more done</span>
           </div>
         </div>
       </section>
 
       <section className="space-y-2">
-        <h2 className="px-1 text-sm font-semibold uppercase tracking-wide text-slate-400">
-          How it’s felt · last 3 weeks
+        <h2 className="px-1 text-sm font-semibold uppercase tracking-[0.12em] text-slate-400">
+          How it's felt · last 3 weeks
         </h2>
         <p className="px-1 text-xs text-slate-400">
-          Progress in rehab is slow, so watch the direction of travel, not single days.
+          One day barely moves. Watch the direction of travel instead.
         </p>
         <div className="grid gap-3 sm:grid-cols-2">
           <Trend
@@ -104,35 +109,35 @@ export function Progress({ store }: { store: Store }) {
             points={series((d) => data.days[d]?.mobility)}
             min={1}
             max={5}
-            color="#0d9488"
+            color="#456b4f"
           />
           <Trend
             label="Pain (lower is better)"
             points={series((d) => data.days[d]?.pain)}
             min={0}
             max={10}
-            color="#f43f5e"
+            color="#bc7a57"
           />
           <Trend
             label="Effort"
             points={series((d) => data.days[d]?.effort)}
             min={1}
             max={10}
-            color="#f59e0b"
+            color="#d38c34"
           />
           <Trend
-            label="Energy / mood"
+            label="Energy & mood"
             points={series((d) => data.days[d]?.energy)}
             min={1}
             max={5}
-            color="#6366f1"
+            color="#6f93a6"
           />
         </div>
       </section>
 
       {data.milestones.length > 0 && (
         <section className="space-y-2">
-          <h2 className="px-1 text-sm font-semibold uppercase tracking-wide text-slate-400">
+          <h2 className="px-1 text-sm font-semibold uppercase tracking-[0.12em] text-slate-400">
             Recent wins
           </h2>
           <div className="space-y-2">
@@ -142,9 +147,9 @@ export function Progress({ store }: { store: Store }) {
               .map((m) => (
                 <div
                   key={m.id}
-                  className="flex items-center gap-3 rounded-2xl border border-emerald-100 bg-emerald-50/60 p-3.5 text-sm text-emerald-900"
+                  className="flex items-center gap-3 rounded-3xl border border-amber-200 bg-amber-50 p-4 text-sm text-slate-700"
                 >
-                  <span>🏅</span>
+                  <span aria-hidden="true">🌱</span>
                   <span className="flex-1">{m.text}</span>
                 </div>
               ))}

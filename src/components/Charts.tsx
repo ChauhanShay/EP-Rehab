@@ -37,7 +37,7 @@ export function Trend({ points, min, max, color, label, unit }: TrendProps) {
   const last = present.length ? present[present.length - 1].value : undefined;
 
   return (
-    <div className="rounded-2xl border border-slate-200 bg-white p-4">
+    <div className="rounded-3xl border border-slate-200 bg-surface p-4">
       <div className="mb-2 flex items-baseline justify-between">
         <span className="text-sm font-semibold text-slate-700">{label}</span>
         <span className="text-sm text-slate-400">
@@ -90,12 +90,12 @@ interface HeatmapProps {
 /** Consistency calendar: a row of weeks coloured by how complete each day was. */
 export function Heatmap({ cells }: HeatmapProps) {
   const color = (v: number) => {
-    if (v < 0) return "#eef2f1";
-    if (v === 0) return "#dbeae7";
-    if (v < 0.34) return "#99f6e4";
-    if (v < 0.67) return "#2dd4bf";
-    if (v < 1) return "#0d9488";
-    return "#0f766e";
+    if (v < 0) return "#e6eadd";
+    if (v === 0) return "#dde4d4";
+    if (v < 0.34) return "#c3d6bd";
+    if (v < 0.67) return "#9cc093";
+    if (v < 1) return "#6e9a66";
+    return "#456b4f";
   };
   return (
     <div className="flex flex-wrap gap-1.5">
